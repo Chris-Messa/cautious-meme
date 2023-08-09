@@ -16,7 +16,7 @@ module.exports = () => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './index.html'),
+        template: './index.html',
       }),
       new InjectManifest({
         swSrc: './src-sw.js',
@@ -28,6 +28,7 @@ module.exports = () => {
         description: 'Just another text editor!',
         background_color: '#ffffff',
         theme_color: '#333333',
+        fingerprints: false,
         start_url: './',
         publicPath: './',
         icons: [

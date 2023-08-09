@@ -1,7 +1,9 @@
 import { openDB } from 'idb';
 
-const initdb = async () =>
-  openDB('jate', 1, {
+let db;
+
+const initdb = async () => {
+  db = await openDB('jate', 1, {
     upgrade(db) {
       if (db.objectStoreNames.contains('jate')) {
         console.log('jate database already exists');
@@ -11,24 +13,30 @@ const initdb = async () =>
       console.log('jate database created');
     },
   });
+};
 
-// TODO: Add logic to a method that accepts some content and adds it to the database
+// Add logic to a method that accepts some content and adds it to the database
 export const putDb = async (content) => {
-  const db = await openDB('jate', 1)
-  const tx = db.transaction('jate', 'readwrite')
-  const store = tx.objectStore('jate')
-  await store.put(content)
-  await tx.done
-}
+  if (!db) {
+    await initdb();
+  }
+  const tx = db.transaction('jate', 'readwrite');
+  const store = tx.objectStore('jate');
+  const result = await store.put({ id: 1, value: content });
+  console.log(result);
+};
 
-// TODO: Add logic for a method that gets all the content from the database
+// Add logic for a method that gets all the content from the database
 export const getDb = async () => {
-  const db = await openDB('jate', 1)
-  const tx = db.transaction('jate', 'readonly')
-  const store = tx.objectStore('jate')
-  const items = await store.getAll();
-  await tx.done
-  return items
-}
+  if (!db) {
+    await initdb();
+  }
+  const tx = db.transaction('jate', 'readonly');
+  const store = tx.objectStore('jate');
+  const items = await store.get(1);
+  return items?.value;
+};
 
-initdb();
+initdb().catch(err => {
+  console.error("Failed to initialize the database:", err);
+});
